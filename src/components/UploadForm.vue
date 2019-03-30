@@ -20,14 +20,21 @@
     <label
       for="file"
       class="dragndrop__header"
+      :class="{'dragndrop__header--compact' : files.length >= 1}"
     >
       <strong>Drag files here</strong> or click to select files
     </label>
+    <uploads :files="files" />
   </div>
 </template>
 
 <script>
+import Uploads from './Uploads'
+import axios from 'axios'
 export default {
+  components: {
+    Uploads
+  },
   data () {
     return {
       files: [],
@@ -60,7 +67,7 @@ export default {
         this.storeMeta(file)
           .then(fileObject => {
             // upload file
-
+            this.upload(fileObject)
           }, fileObject => {
             // failed
             fileObject.failed = true
@@ -101,6 +108,27 @@ export default {
       }) - 1
 
       return this.files[fileObjectIndex]
+    },
+
+    upload (fileObject) {
+      const form = new FormData()
+      form.append('file', fileObject.file)
+      form.append('id', fileObject.id)
+
+      // emit upload init
+      this.$http.post('http://drag-n-drop.test/api/upload', form, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        cancelToken: new axios.CancelToken(c => { fileObject.xhr = c }),
+        onUploadProgress: progressEvent => { console.log(progressEvent) }
+      })
+        .then(response => {
+          console.log('finished')
+          // emit finished
+        }, () => {
+          // emit failed
+        })
     }
   }
 }
