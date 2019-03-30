@@ -2,9 +2,8 @@
   <div class="dragndrop__file">
     <div class="progress">
       <div class="progress__label">
-        <div class="truncate">
-          {{ file.file.name }}
-        </div> ({{ file.secondsRemaining }} seconds remaining)
+        <span class="truncate">{{ file.file.name }}</span>
+        <span v-if="!file.finished && !file.failed && !file.cancelled">({{ file.secondsRemaining }} seconds remaining)</span>
       </div>
       <div
         class="progress__fill"

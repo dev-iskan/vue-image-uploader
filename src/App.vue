@@ -36,7 +36,7 @@ export default {
 
   .truncate {
     display: inline-block;
-    width: 500px;
+    width: 400px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

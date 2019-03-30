@@ -12,7 +12,7 @@
           Percentage: {{ overallProgress }}%
         </li>
         <li class="list-inline__item list-inline__item--last">
-          Time remaining: 00:00
+          Time remaining: {{ timeRemaining }}
         </li>
       </ul>
     </div>
@@ -27,8 +27,9 @@
 <script>
 import EventBus from '@/events'
 import File from './File'
-import { setInterval } from 'timers'
+import { setInterval, clearInterval } from 'timers'
 import timeremaining from '@/helpers/timeRemaining'
+import pad from '@/helpers/pad'
 export default {
   components: {
     File
@@ -42,7 +43,9 @@ export default {
   data () {
     return {
       overallProgress: 0,
-      interval: null
+      interval: null,
+      secondsRemaining: 0,
+      timeRemaining: 'Calculating'
     }
   },
   created () {
@@ -52,6 +55,11 @@ export default {
     EventBus.$on('init', () => {
       if (!this.interval) {
         this.interval = setInterval(() => {
+          if (this.unfinishedFiles().length === 0) {
+            this.updateOverallProgress()
+            clearInterval(this.interval)
+            this.interval = null
+          }
           this.updateTimeRemaining()
         }, 1000)
       }
@@ -72,9 +80,15 @@ export default {
     },
 
     updateTimeRemaining () {
+      this.secondsRemaining = 0
       this.unfinishedFiles().forEach(file => {
         file.secondsRemaining = timeremaining.calculate(file.totalBytes, file.loadedBytes, file.timeStarted)
+        this.secondsRemaining += file.secondsRemaining
       })
+      const minutes = Math.floor(this.secondsRemaining / 60)
+      const seconds = this.secondsRemaining - minutes * 60
+
+      this.timeRemaining = pad.left('00', minutes) + ':' + pad.left('00', seconds)
     },
 
     unfinishedFiles () {
