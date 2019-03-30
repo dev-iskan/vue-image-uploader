@@ -46,12 +46,61 @@ export default {
     drop (e) {
       this.leave()
       // add files
-      console.log(e.dataTransfer.files)
+      this.addFiles(e.dataTransfer.files)
     },
 
     select (e) {
       // add files
-      console.log(this.$refs.input.files)
+      this.addFiles(this.$refs.input.files)
+    },
+
+    addFiles (files) {
+      Object.keys(files).forEach(key => {
+        const file = files[key]
+        this.storeMeta(file)
+          .then(fileObject => {
+            // upload file
+
+          }, fileObject => {
+            // failed
+            fileObject.failed = true
+          })
+      })
+    },
+
+    storeMeta (file) {
+      // create file object
+      const fileObject = this.generateFileObject(file)
+      return new Promise((resolve, reject) => {
+        this.$http.get('http://drag-n-drop.test/api/store')
+          .then(res => {
+          // set id
+            fileObject.id = res.data.data.id
+            // resolve
+            resolve(fileObject)
+          }, () => {
+            // reject
+            reject(fileObject)
+          })
+      })
+    },
+
+    generateFileObject (file) {
+      const fileObjectIndex = this.files.push({
+        id: null,
+        file,
+        progress: 0,
+        failed: false,
+        loadedBytes: 0,
+        totalBytes: 0,
+        timeStarted: (new Date()).getTime(),
+        secondsRemaining: 0,
+        finished: false,
+        cancelled: false,
+        xhr: null
+      }) - 1
+
+      return this.files[fileObjectIndex]
     }
   }
 }
