@@ -12,12 +12,17 @@
                  'progress__fill--failed': file.failed || file.cancelled}"
       />
       <div class="progress_percentage">
-        <span v-if="file.failed">Failed</span>
+        <span v-if="file.failed && !file.cancelled">Failed</span>
         <span v-if="file.finished">Completed</span>
         <span v-if="file.cancelled">Canceled</span>
         <span v-if="!file.finished && !file.failed && !file.cancelled">{{ file.progress }}%</span>
       </div>
     </div>
+    <a
+      v-if="!file.finished && !file.cancelled"
+      href="#"
+      @click.prevent="cancel"
+    >Cancel</a>
   </div>
 </template>
 
@@ -53,6 +58,11 @@ export default {
       fileObject.totalBytes = e.total
 
       fileObject.progress = Math.ceil((e.loaded / e.total) * 100)
+    },
+
+    cancel () {
+      this.file.xhr()
+      this.file.cancelled = true
     }
   }
 }
