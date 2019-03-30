@@ -31,6 +31,7 @@
 <script>
 import Uploads from './Uploads'
 import axios from 'axios'
+import EventBus from '@/events'
 export default {
   components: {
     Uploads
@@ -121,13 +122,14 @@ export default {
           'Content-Type': 'multipart/form-data'
         },
         cancelToken: new axios.CancelToken(c => { fileObject.xhr = c }),
-        onUploadProgress: progressEvent => { console.log(progressEvent) }
+        onUploadProgress: progressEvent => { EventBus.$emit('progress', fileObject, progressEvent) }
       })
         .then(response => {
-          console.log('finished')
           // emit finished
+          EventBus.$emit('finished', fileObject)
         }, () => {
           // emit failed
+          EventBus.$emit('failed', fileObject)
         })
     }
   }

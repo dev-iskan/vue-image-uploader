@@ -2,17 +2,26 @@
   <div class="dragndrop__file">
     <div class="progress">
       <div class="progress__label">
-        Filename (x seconds remaining)
+        {{ file.file.name }} (x seconds remaining)
       </div>
-      <div class="progress__fill" />
+      <div
+        class="progress__fill"
+        :style="{'width': file.progress + '%'}"
+        :class="{'progress__fill--finished': file.finished,
+                 'progress__fill--failed': file.failed || file.cancelled}"
+      />
       <div class="progress_percentage">
-        20%
+        <span v-if="file.failed">Failed</span>
+        <span v-if="file.finished">Completed</span>
+        <span v-if="file.cancelled">Canceled</span>
+        <span v-if="!file.finished && !file.failed && !file.cancelled">{{ file.progress }}%</span>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import EventBus from '@/events'
 export default {
   props: {
     file: {
@@ -20,9 +29,31 @@ export default {
       type: Object
     }
   },
-  data () {
-    return {
+  created () {
+    EventBus.$on('progress', (fileObject, e) => {
+      this.updateFileProgress(fileObject, e)
+    })
 
+    EventBus.$on('finished', (fileObject, e) => {
+      if (fileObject.id === this.file.id) this.file.finished = true
+    })
+
+    EventBus.$on('failed', (fileObject, e) => {
+      if (fileObject.id === this.file.id) this.file.failed = true
+    })
+  },
+  methods: {
+    updateFileProgress (fileObject, e) {
+      if (!e.lengthComputable) {
+        return false
+      }
+
+      fileObject.loadedBytes = e.loaded
+      fileObject.totalBytes = e.total
+
+      fileObject.progress = Math.ceil((e.loaded / e.total) * 100)
+
+      console.log(fileObject.progress)
     }
   }
 }
@@ -69,6 +100,7 @@ export default {
 
   .progress__fill--failed {
     transition: none;
+    opacity: 1;
     width: 100%!important;
     background-color: #f66;
   }
