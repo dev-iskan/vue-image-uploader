@@ -117,6 +117,8 @@ export default {
       form.append('id', fileObject.id)
 
       // emit upload init
+      EventBus.$emit('init')
+
       this.$http.post('http://drag-n-drop.test/api/upload', form, {
         headers: {
           'Content-Type': 'multipart/form-data'

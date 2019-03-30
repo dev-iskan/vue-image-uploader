@@ -33,4 +33,12 @@ export default {
   .list-inline__item--last {
     margin-right: 0;
   }
+
+  .truncate {
+    display: inline-block;
+    width: 500px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 </style>

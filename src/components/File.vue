@@ -2,7 +2,9 @@
   <div class="dragndrop__file">
     <div class="progress">
       <div class="progress__label">
-        {{ file.file.name }} (x seconds remaining)
+        <div class="truncate">
+          {{ file.file.name }}
+        </div> ({{ file.secondsRemaining }} seconds remaining)
       </div>
       <div
         class="progress__fill"
@@ -52,8 +54,6 @@ export default {
       fileObject.totalBytes = e.total
 
       fileObject.progress = Math.ceil((e.loaded / e.total) * 100)
-
-      console.log(fileObject.progress)
     }
   }
 }
