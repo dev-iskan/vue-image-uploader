@@ -1,11 +1,21 @@
 <template>
-  <div class="dragndrop">
+  <div
+    class="dragndrop"
+    :class="{'dragndrop--dragged': isDraggedOver}"
+    @dragover.prevent="enter"
+    @dragenter.prevent="enter"
+    @dragleave.prevent="leave"
+    @dragend.prevent="leave"
+    @drop.prevent="drop"
+  >
     <input
       id="file"
+      ref="input"
       type="file"
       name="files[]"
       multiple
       class="dragndrop__input"
+      @change="select"
     >
     <label
       for="file"
@@ -18,7 +28,32 @@
 
 <script>
 export default {
+  data () {
+    return {
+      files: [],
+      isDraggedOver: false
+    }
+  },
+  methods: {
+    enter () {
+      this.isDraggedOver = true
+    },
 
+    leave () {
+      this.isDraggedOver = false
+    },
+
+    drop (e) {
+      this.leave()
+      // add files
+      console.log(e.dataTransfer.files)
+    },
+
+    select (e) {
+      // add files
+      console.log(this.$refs.input.files)
+    }
+  }
 }
 </script>
 
@@ -32,6 +67,10 @@ export default {
     border: 3px dashed rgba(0,0,0, .2);
   }
 
+  .dragndrop--dragged {
+    border-color: #333;
+  }
+
   .dragndrop__input {
     display: none;
   }
@@ -40,7 +79,6 @@ export default {
     display: block;
     font-size: 1.1em;
     color: #555;
-    vertical-align: middle;
     text-align: center;
     margin: calc(var(--dragndrop-min-height) / 2) 20px;
   }
